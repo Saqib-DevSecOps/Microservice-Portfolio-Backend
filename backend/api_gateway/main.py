@@ -14,6 +14,12 @@ USER_SERVICE_URL = "http://127.0.0.1:8001/rest-auth/verify-token/"
 # Blog Service URL (replace with actual URL of your blog service)
 BLOG_SERVICE_URL = "http://127.0.0.1:8002"
 
+# Project Service URL (replace with actual URL of your project service)
+PROJECT_SERVICE_URL = "http://127.0.0.1:8003"
+
+# Services Service URL (replace with actual URL of your services service)
+SERVICES_SERVICE_URL = "http://127.0.0.1:8004"
+
 
 async def verify_token(request: Request):
     token = request.headers.get('Authorization')
@@ -71,25 +77,25 @@ async def delete_tag(tag_id: int, request: Request):
 
 
 # Routes for Categories
-@app.get("/categories/")
+@app.get("/blog-categories/")
 async def get_categories(request: Request):
-    return await make_request("GET", f"{BLOG_SERVICE_URL}/categories/", request)
+    return await make_request("GET", f"{BLOG_SERVICE_URL}/blog-categories/", request)
 
 
-@app.post("/categories/")
+@app.post("/blog-categories/")
 async def create_category(request: Request):
-    return await make_request("POST", f"{BLOG_SERVICE_URL}/categories/", request, data=await request.json())
+    return await make_request("POST", f"{BLOG_SERVICE_URL}/blog-categories/", request, data=await request.json())
 
 
-@app.put("/categories/{category_id}/")
+@app.put("/blog-categories/{category_id}/")
 async def update_category(category_id: int, request: Request):
-    return await make_request("PUT", f"{BLOG_SERVICE_URL}/categories/{category_id}/", request,
+    return await make_request("PUT", f"{BLOG_SERVICE_URL}/blog-categories/{category_id}/", request,
                               data=await request.json())
 
 
-@app.delete("/categories/{category_id}/")
+@app.delete("/blog-categories/{category_id}/")
 async def delete_category(category_id: int, request: Request):
-    return await make_request("DELETE", f"{BLOG_SERVICE_URL}/categories/{category_id}/", request)
+    return await make_request("DELETE", f"{BLOG_SERVICE_URL}/blog-categories/{category_id}/", request)
 
 
 # Routes for Blogs
@@ -111,3 +117,151 @@ async def update_blog(blog_id: int, request: Request):
 @app.delete("/blogs/{blog_id}/")
 async def delete_blog(blog_id: int, request: Request):
     return await make_request("DELETE", f"{BLOG_SERVICE_URL}/blogs/{blog_id}/", request)
+
+
+# Routes for Projects
+@app.get("/projects/")
+async def get_projects(request: Request):
+    return await make_request("GET", f"{PROJECT_SERVICE_URL}/projects/", request)
+
+
+@app.post("/projects/")
+async def create_project(request: Request):
+    return await make_request("POST", f"{PROJECT_SERVICE_URL}/projects/", request, data=await request.json())
+
+
+@app.put("/projects/{project_id}/")
+async def update_project(project_id: int, request: Request):
+    return await make_request("PUT", f"{PROJECT_SERVICE_URL}/projects/{project_id}/", request,
+                              data=await request.json())
+
+
+@app.delete("/projects/{project_id}/")
+async def delete_project(project_id: int, request: Request):
+    return await make_request("DELETE", f"{PROJECT_SERVICE_URL}/projects/{project_id}/", request)
+
+
+# Routes for Project Technologies
+@app.get("/project-technologies/")
+async def get_project_technologies(request: Request):
+    return await make_request("GET", f"{PROJECT_SERVICE_URL}/project-technologies/", request)
+
+
+@app.post("/project-technologies/")
+async def create_project_technology(request: Request):
+    data = await request.json()
+
+    # Verify that the technology exists by calling the services service
+    async with httpx.AsyncClient() as client:
+        tech_response = await client.get(f"{SERVICES_SERVICE_URL}/technologies/{data['technology_id']}")
+        if tech_response.status_code != 200:
+            raise HTTPException(status_code=404, detail="Technology not found")
+
+    # If technology exists, proceed with creating the project technology in project service
+    return await make_request("POST", f"{PROJECT_SERVICE_URL}/project-technologies/", request, data=data)
+
+
+@app.put("/project-technologies/{project_technology_id}/")
+async def update_project_technology(project_technology_id: int, request: Request):
+    data = await request.json()
+
+    # Verify that the technology exists by calling the services service
+    async with httpx.AsyncClient() as client:
+        tech_response = await client.get(f"{SERVICES_SERVICE_URL}/technologies/{data['technology_id']}")
+        if tech_response.status_code != 200:
+            raise HTTPException(status_code=404, detail="Technology not found")
+
+    # If technology exists, proceed with updating the project technology in project service
+    return await make_request("PUT", f"{PROJECT_SERVICE_URL}/project-technologies/{project_technology_id}/", request,
+                              data=data)
+
+
+@app.delete("/project-technologies/{project_technology_id}/")
+async def delete_project_technology(project_technology_id: int, request: Request):
+    return await make_request("DELETE", f"{PROJECT_SERVICE_URL}/project-technologies/{project_technology_id}/", request)
+
+
+# Routes for Services
+@app.get("/services/")
+async def get_services(request: Request):
+    return await make_request("GET", f"{SERVICES_SERVICE_URL}/services/", request)
+
+
+@app.post("/services/")
+async def create_service(request: Request):
+    return await make_request("POST", f"{SERVICES_SERVICE_URL}/services/", request, data=await request.json())
+
+
+@app.put("/services/{service_id}/")
+async def update_service(service_id: int, request: Request):
+    return await make_request("PUT", f"{SERVICES_SERVICE_URL}/services/{service_id}/", request,
+                              data=await request.json())
+
+
+@app.delete("/services/{service_id}/")
+async def delete_service(service_id: int, request: Request):
+    return await make_request("DELETE", f"{SERVICES_SERVICE_URL}/services/{service_id}/", request)
+
+
+# Routes for Service Categories
+@app.get("/service-categories/")
+async def get_service_categories(request: Request):
+    return await make_request("GET", f"{SERVICES_SERVICE_URL}/service-categories/", request)
+
+
+@app.post("/service-categories/")
+async def create_service_category(request: Request):
+    return await make_request("POST", f"{SERVICES_SERVICE_URL}/service-categories/", request, data=await request.json())
+
+
+@app.put("/service-categories/{category_id}/")
+async def update_service_category(category_id: int, request: Request):
+    return await make_request("PUT", f"{SERVICES_SERVICE_URL}/service-categories/{category_id}/", request,
+                              data=await request.json())
+
+
+@app.delete("/service-categories/{category_id}/")
+async def delete_service_category(category_id: int, request: Request):
+    return await make_request("DELETE", f"{SERVICES_SERVICE_URL}/service-categories/{category_id}/", request)
+
+
+# Routes for Technologies (within the services context)
+@app.get("/technologies/")
+async def get_technologies(request: Request):
+    return await make_request("GET", f"{SERVICES_SERVICE_URL}/technologies/", request)
+
+
+@app.post("/technologies/")
+async def create_technology(request: Request):
+    return await make_request("POST", f"{SERVICES_SERVICE_URL}/technologies/", request, data=await request.json())
+
+
+@app.put("/technologies/{technology_id}/")
+async def update_technology(technology_id: int, request: Request):
+    return await make_request("PUT", f"{SERVICES_SERVICE_URL}/technologies/{technology_id}/", request,
+                              data=await request.json())
+
+
+@app.delete("/technologies/{technology_id}/")
+async def delete_technology(technology_id: int, request: Request):
+    return await make_request("DELETE", f"{SERVICES_SERVICE_URL}/technologies/{technology_id}/", request)
+
+
+@app.get('/skill/')
+async def get_skills(request: Request):
+    return await make_request("GET", f"{SERVICES_SERVICE_URL}/skills/", request)
+
+
+@app.post('/skill/')
+async def create_skill(request: Request):
+    return await make_request("POST", f"{SERVICES_SERVICE_URL}/skills/", request, data=await request.json())
+
+
+@app.put('/skill/{skill_id}/')
+async def update_skill(skill_id: int, request: Request):
+    return await make_request("PUT", f"{SERVICES_SERVICE_URL}/skills/{skill_id}/", request, data=await request.json())
+
+
+@app.delete('/skill/{skill_id}/')
+async def delete_skill(skill_id: int, request: Request):
+    return await make_request("DELETE", f"{SERVICES_SERVICE_URL}/skills/{skill_id}/", request)
