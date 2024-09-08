@@ -5,6 +5,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+from .views import VerifyTokenView
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Personal Portfolio Site",
@@ -28,6 +30,8 @@ urlpatterns = [
     # REST-AUTH URLS
     re_path('rest-auth/registration/', include('dj_rest_auth.registration.urls')),
     re_path('rest-auth/', include('dj_rest_auth.urls')),
+    path('rest-auth/verify-token/', VerifyTokenView.as_view(), name='verify-token'),
+
 ]
 
 
