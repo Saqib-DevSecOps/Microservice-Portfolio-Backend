@@ -20,6 +20,9 @@ PROJECT_SERVICE_URL = "http://127.0.0.1:8003"
 # Services Service URL (replace with actual URL of your services service)
 SERVICES_SERVICE_URL = "http://127.0.0.1:8004"
 
+# Certificate Service URL (replace with actual URL of your certificate service)
+CERTIFICATE_SERVICE_URL = "http://127.0.0.1:8005"  # Adjust to your certificate service URL
+
 
 async def verify_token(request: Request):
     token = request.headers.get('Authorization')
@@ -46,7 +49,6 @@ async def verify_token(request: Request):
         raise HTTPException(status_code=response.status_code, detail="Invalid token")
 
 
-# Routes for Tags
 async def make_request(method: str, url: str, request: Request, data=None):
     user_info = None
     if method in ["POST", "PUT", "DELETE"]:
@@ -61,6 +63,7 @@ async def make_request(method: str, url: str, request: Request, data=None):
         return JSONResponse(content=response.json(), status_code=response.status_code)
 
 
+# Routes for Tags
 @app.post("/tags/")
 async def create_tag(request: Request):
     return await make_request("POST", f"{BLOG_SERVICE_URL}/tags/", request, data=await request.json())
@@ -265,3 +268,48 @@ async def update_skill(skill_id: int, request: Request):
 @app.delete('/skill/{skill_id}/')
 async def delete_skill(skill_id: int, request: Request):
     return await make_request("DELETE", f"{SERVICES_SERVICE_URL}/skills/{skill_id}/", request)
+
+
+# Routes for Certificate Categories
+@app.get("/certificate-categories/")
+async def get_certificate_categories(request: Request):
+    return await make_request("GET", f"{CERTIFICATE_SERVICE_URL}/certificate-categories/", request)
+
+
+@app.post("/certificate-categories/")
+async def create_certificate_category(request: Request):
+    return await make_request("POST", f"{CERTIFICATE_SERVICE_URL}/certificate-categories/", request,
+                              data=await request.json())
+
+
+@app.put("/certificate-categories/{category_id}/")
+async def update_certificate_category(category_id: int, request: Request):
+    return await make_request("PUT", f"{CERTIFICATE_SERVICE_URL}/certificate-categories/{category_id}/", request,
+                              data=await request.json())
+
+
+@app.delete("/certificate-categories/{category_id}/")
+async def delete_certificate_category(category_id: int, request: Request):
+    return await make_request("DELETE", f"{CERTIFICATE_SERVICE_URL}/certificate-categories/{category_id}/", request)
+
+
+# Routes for Certificates
+@app.get("/certificates/")
+async def get_certificates(request: Request):
+    return await make_request("GET", f"{CERTIFICATE_SERVICE_URL}/certificates/", request)
+
+
+@app.post("/certificates/")
+async def create_certificate(request: Request):
+    return await make_request("POST", f"{CERTIFICATE_SERVICE_URL}/certificates/", request, data=await request.json())
+
+
+@app.put("/certificates/{certificate_id}/")
+async def update_certificate(certificate_id: int, request: Request):
+    return await make_request("PUT", f"{CERTIFICATE_SERVICE_URL}/certificates/{certificate_id}/", request,
+                              data=await request.json())
+
+
+@app.delete("/certificates/{certificate_id}/")
+async def delete_certificate(certificate_id: int, request: Request):
+    return await make_request("DELETE", f"{CERTIFICATE_SERVICE_URL}/certificates/{certificate_id}/", request)
