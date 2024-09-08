@@ -19,8 +19,6 @@ schema_view = get_schema_view(
 # EXTERNAL APPS URLS
 urlpatterns = [
 
-    # DJANGO URLS > remove in extreme security
-    path('admin/', admin.site.urls),
 
     # SWAGGER
     re_path(r'^api(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
